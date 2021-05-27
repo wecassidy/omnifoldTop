@@ -225,6 +225,28 @@ class DataHandler(object):
             sigma = 1000.
             rw = 1. + k*np.exp( -( (mtt-m0)/sigma )**2 )
             return rw
+        elif rw_type == "linear_two_dim":
+            assert "mtt" in vars_dict
+            assert "ytt" in vars_dict
+            assert self.truth_known
+            varname_mtt = vars_dict["mtt"]["branch_mc"]
+            varname_ytt = vars_dict["ytt"]["branch_mc"]
+            mtt = self.get_variable_arr(varname_mtt)
+            ytt = self.get_variable_arr(varname_ytt)
+            # Reweight factor
+            rw = 2 + mtt / 300 + 2 * ytt
+            return rw
+        elif rw_type == "linear_2d_small":
+            assert "mtt" in vars_dict
+            assert "ytt" in vars_dict
+            assert self.truth_known
+            varname_mtt = vars_dict["mtt"]["branch_mc"]
+            varname_ytt = vars_dict["ytt"]["branch_mc"]
+            mtt = self.get_variable_arr(varname_mtt)
+            ytt = self.get_variable_arr(varname_ytt)
+            # Reweight factor
+            rw = 2 + mtt / 300 + ytt / 700
+            return rw
         else:
             raise RuntimeError("Unknown reweighting type: {}".format(rw_type))
 

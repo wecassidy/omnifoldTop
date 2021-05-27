@@ -243,9 +243,20 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--background-mode', dest='background_mode',
                         choices=['default', 'negW', 'multiClass'],
                         default='default', help="Background mode")
-    parser.add_argument('-r', '--reweight-data', dest='reweight_data',
-                        choices=['linear_th_pt', 'gaussian_bump', 'gaussian_tail'], default=None,
-                        help="Reweight strategy of the input spectrum for stress tests")
+    parser.add_argument(
+        "-r",
+        "--reweight-data",
+        dest="reweight_data",
+        choices=[
+            "linear_th_pt",
+            "gaussian_bump",
+            "gaussian_tail",
+            "linear_two_dim",
+            "linear_2d_small",
+        ],
+        default=None,
+        help="Reweight strategy of the input spectrum for stress tests",
+    )
     parser.add_argument('-v', '--verbose',
                         action='count', default=0,
                         help="Verbosity level")
