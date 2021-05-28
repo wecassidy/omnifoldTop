@@ -13,6 +13,7 @@ from omnifoldwbkg import OmniFoldwBkg_negW, OmniFoldwBkg_multi
 from ibu import IBU
 from util import read_dict_from_json, get_bins
 from util import configGPUs, expandFilePath, configRootLogger
+import reweight
 import logging
 
 def unfold(**parsed_args):
@@ -247,13 +248,7 @@ if __name__ == "__main__":
         "-r",
         "--reweight-data",
         dest="reweight_data",
-        choices=[
-            "linear_th_pt",
-            "gaussian_bump",
-            "gaussian_tail",
-            "linear_two_dim",
-            "linear_2d_small",
-        ],
+        choices=reweight.rw.keys(),
         default=None,
         help="Reweight strategy of the input spectrum for stress tests",
     )

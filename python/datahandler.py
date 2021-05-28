@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from util import parse_input_name, normalize_histogram
+import reweight
 # for now
 import external.OmniFold.modplot as modplot
 
@@ -193,60 +194,8 @@ class DataHandler(object):
     def _reweight_sample(self, rw_type, vars_dict):
         if not rw_type:
             return 1.
-        elif rw_type == 'linear_th_pt':
-            # truth-level hadronic top pt
-            assert('th_pt' in vars_dict)
-            assert(self.truth_known)
-            varname_thpt = vars_dict['th_pt']['branch_mc']
-            th_pt = self.get_variable_arr(varname_thpt)
-            # reweight factor
-            rw = 1. + 1/800.*th_pt
-            return rw
-        elif rw_type == 'gaussian_bump':
-            # truth-level ttbar mass
-            assert('mtt' in vars_dict)
-            assert(self.truth_known)
-            varname_mtt = vars_dict['mtt']['branch_mc']
-            mtt = self.get_variable_arr(varname_mtt)
-            #reweight factor
-            k = 0.5
-            m0 = 800.
-            sigma = 100.
-            rw = 1. + k*np.exp( -( (mtt-m0)/sigma )**2 )
-            return rw
-        elif rw_type == 'gaussian_tail':
-            assert('mtt' in vars_dict)
-            assert(self.truth_known)
-            varname_mtt = vars_dict['mtt']['branch_mc']
-            mtt = self.get_variable_arr(varname_mtt)
-            #reweight factor
-            k = 0.5
-            m0 = 2000.
-            sigma = 1000.
-            rw = 1. + k*np.exp( -( (mtt-m0)/sigma )**2 )
-            return rw
-        elif rw_type == "linear_two_dim":
-            assert "mtt" in vars_dict
-            assert "ytt" in vars_dict
-            assert self.truth_known
-            varname_mtt = vars_dict["mtt"]["branch_mc"]
-            varname_ytt = vars_dict["ytt"]["branch_mc"]
-            mtt = self.get_variable_arr(varname_mtt)
-            ytt = self.get_variable_arr(varname_ytt)
-            # Reweight factor
-            rw = 2 + mtt / 300 + 2 * ytt
-            return rw
-        elif rw_type == "linear_2d_small":
-            assert "mtt" in vars_dict
-            assert "ytt" in vars_dict
-            assert self.truth_known
-            varname_mtt = vars_dict["mtt"]["branch_mc"]
-            varname_ytt = vars_dict["ytt"]["branch_mc"]
-            mtt = self.get_variable_arr(varname_mtt)
-            ytt = self.get_variable_arr(varname_ytt)
-            # Reweight factor
-            rw = 2 + mtt / 300 + ytt / 700
-            return rw
+        elif rw_type in reweight.rw:
+            return reweight.rw[rw_type](self, vars_dict)
         else:
             raise RuntimeError("Unknown reweighting type: {}".format(rw_type))
 
