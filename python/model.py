@@ -36,6 +36,14 @@ def get_model(input_shape, model_name='dense_3hl', nclass=2):
 
     return model
 
+def dense_small(input_shape, nclass=2):
+    inputs = keras.layers.Input(input_shape)
+    hl1 = keras.layers.Dense(50, activation="relu")(inputs)
+    dropout = keras.layers.Dropout(0.4)(hl1)
+    hl2 = keras.layers.Dense(50, activation="relu")(dropout)
+    outputs = keras.layers.Dense(nclass, activation="softmax")(hl2)
+    return keras.models.Model(inputs=inputs, outputs=outputs)
+
 def dense_3hl(input_shape, nclass=2):
     inputs = keras.layers.Input(input_shape)
     hidden_layer_1 = keras.layers.Dense(100, activation='relu')(inputs)
