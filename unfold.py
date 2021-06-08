@@ -94,20 +94,22 @@ def unfold(**parsed_args):
     #################
     # Unfold
     #################
+    unfold_type = None
     if parsed_args['background_mode'] == 'default':
-        unfolder = OmniFoldwBkg(vars_det_train, vars_mc_train,
-                                iterations = parsed_args['iterations'],
-                                outdir = parsed_args['outputdir'])
+        unfold_type = OmniFoldwBkg
     elif parsed_args['background_mode'] == 'negW':
-        unfolder = OmniFoldwBkg_negW(vars_det_train, vars_mc_train,
-                                    iterations = parsed_args['iterations'],
-                                    outdir = parsed_args['outputdir'])
+        unfold_type = OmniFoldwBkg_negW
     elif parsed_args['background_mode'] == 'multiClass':
-        unfolder = OmniFoldwBkg_multi(vars_det_train, vars_mc_train,
-                                    iterations = parsed_args['iterations'],
-                                    outdir = parsed_args['outputdir'])
+        unfold_type = OmniFoldwBkg_multi
     else:
         logger.error("Unknown background mode {}".format(parsed_args['background_mode']))
+    unfolder = unfold_type(
+        vars_det_train,
+        vars_mc_train,
+        iterations=parsed_args["iterations"],
+        outdir=parsed_args["outputdir"],
+        model_name=parsed_args["model_name"]
+    )
 
     # prepare input data
     logger.info("Prepare data")
@@ -268,6 +270,12 @@ if __name__ == "__main__":
                         default='sumw2', help="Method to evaluate uncertainties")
     parser.add_argument('--batch-size', dest='batch_size', type=int, default=512,
                         help="Batch size for training")
+    parser.add_argument(
+        "--model-name",
+        dest="model_name",
+        default="dense_3hl",
+        help="Model architecture name, referring to one of the models in python/models.py"
+    )
 
     #parser.add_argument('-n', '--normalize',
     #                    action='store_true',

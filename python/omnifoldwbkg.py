@@ -14,9 +14,9 @@ logger = logging.getLogger('OmniFoldwBkg')
 logger.setLevel(logging.DEBUG)
 
 class OmniFoldwBkg(object):
-    def __init__(self, variables_det, variables_truth, iterations=4, outdir='.', binned_rw=False):
+    def __init__(self, variables_det, variables_truth, iterations=4, outdir='.', binned_rw=False, model_name="dense_3hl"):
         # list of detector and truth level variable names used in training
-        self.vars_reco = variables_det 
+        self.vars_reco = variables_det
         self.vars_truth = variables_truth
         # number of iterations
         self.iterations = iterations
@@ -50,6 +50,8 @@ class OmniFoldwBkg(object):
         if not os.path.isdir(outdir):
             os.makedirs(outdir)
         self.outdir = outdir.rstrip('/')+'/'
+        # choice of model architecture
+        self.model_name = model_name
 
     def prepare_inputs(self, obsHandle, simHandle, bkgHandle=None,
                         obsBkgHandle=None,
@@ -613,7 +615,7 @@ class OmniFoldwBkg(object):
     def _set_up_model(self, input_shape, filepath_save=None, filepath_load=None,
                       reweight_only=False, nclass=2):
         # get model
-        model = get_model(input_shape, nclass=nclass)
+        model = get_model(input_shape, self.model_name, nclass=nclass)
 
         # callbacks
         callbacks = get_callbacks(filepath_save)
