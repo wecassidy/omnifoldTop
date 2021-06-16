@@ -69,6 +69,14 @@ def dense_6hl(input_shape, nclass=2):
 
     return nn
 
+def silly(input_shape, nclass=2):
+    inputs = keras.layers.Input(input_shape)
+    hl = keras.layers.Dense(1000, activation="relu")(inputs)
+    for _ in range(10):
+        hl = keras.layers.Dense(1000, activation="relu")(hl)
+    outputs = keras.layers.Dense(nclass, activation="softmax")(hl)
+    return keras.models.Model(inputs=inputs, outputs=outputs)
+
 def pfn(input_shape, nclass=2, nlatent=8):
     # https://arxiv.org/pdf/1810.05165.pdf
 
