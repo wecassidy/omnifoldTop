@@ -110,6 +110,13 @@ def silly(input_shape, nclass=2):
     return keras.models.Model(inputs=inputs, outputs=outputs)
 
 @register_model
+def tiny(input_shape, nclass=2):
+    inputs = keras.layers.Input(input_shape)
+    hidden = keras.layers.Dense(5, activation="relu")(inputs)
+    outputs = keras.layers.Dense(nclass, activation="softmax")(hidden)
+    return keras.models.Model(inputs=inputs, outputs=outputs)
+
+@register_model
 def pfn(input_shape, nclass=2, nlatent=8):
     # https://arxiv.org/pdf/1810.05165.pdf
 
