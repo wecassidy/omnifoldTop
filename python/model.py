@@ -1,6 +1,8 @@
 from tensorflow import keras
 from tensorflow.keras import layers
 
+model_builders = {} # Mapping of model names to model callables
+
 def get_callbacks(model_filepath=None):
 
     EarlyStopping = keras.callbacks.EarlyStopping(
@@ -26,7 +28,7 @@ def get_callbacks(model_filepath=None):
 
 def get_model(input_shape, model_name='dense_3hl', nclass=2):
 
-    model = eval(model_name+"(input_shape, nclass)")
+    model = model_builders[model_name](input_shape, nclass)
 
     model.compile(loss='categorical_crossentropy',
                   optimizer='Adam',
@@ -36,6 +38,33 @@ def get_model(input_shape, model_name='dense_3hl', nclass=2):
 
     return model
 
+def register_model(model_func):
+    """
+    Decorator to save a model function to the registry of model builders.
+
+    Parameters
+    ----------
+    model_func : callable(array-like, int) -> keras.models.Model
+
+    Returns
+    -------
+    callable(array-like, int) -> keras.models.Model
+        The callable passed in to the decorator, unaltered.
+
+    Examples
+    --------
+
+        @register_model
+        def example_model(input_shape, nclass=2):
+            ...
+            return keras.models.Model(...)
+
+    This model will be registered as `model.model_builders["example_model"]`
+    """
+    model_builders[model_func.__name__] = model_func
+    return model_func
+
+@register_model
 def dense_small(input_shape, nclass=2):
     inputs = keras.layers.Input(input_shape)
     hl1 = keras.layers.Dense(50, activation="relu")(inputs)
@@ -44,6 +73,7 @@ def dense_small(input_shape, nclass=2):
     outputs = keras.layers.Dense(nclass, activation="softmax")(hl2)
     return keras.models.Model(inputs=inputs, outputs=outputs)
 
+@register_model
 def dense_3hl(input_shape, nclass=2):
     inputs = keras.layers.Input(input_shape)
     hidden_layer_1 = keras.layers.Dense(100, activation='relu')(inputs)
@@ -55,6 +85,7 @@ def dense_3hl(input_shape, nclass=2):
 
     return nn
 
+@register_model
 def dense_6hl(input_shape, nclass=2):
     inputs = keras.layers.Input(input_shape)
     hidden_layer_1 = keras.layers.Dense(100, activation='relu')(inputs)
@@ -69,6 +100,7 @@ def dense_6hl(input_shape, nclass=2):
 
     return nn
 
+@register_model
 def silly(input_shape, nclass=2):
     inputs = keras.layers.Input(input_shape)
     hl = keras.layers.Dense(1000, activation="relu")(inputs)
@@ -77,6 +109,7 @@ def silly(input_shape, nclass=2):
     outputs = keras.layers.Dense(nclass, activation="softmax")(hl)
     return keras.models.Model(inputs=inputs, outputs=outputs)
 
+@register_model
 def pfn(input_shape, nclass=2, nlatent=8):
     # https://arxiv.org/pdf/1810.05165.pdf
 

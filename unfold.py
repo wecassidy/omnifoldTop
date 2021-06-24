@@ -11,6 +11,7 @@ from datahandler import DataHandler
 from omnifoldwbkg import OmniFoldwBkg
 from omnifoldwbkg import OmniFoldwBkg_negW, OmniFoldwBkg_multi
 from ibu import IBU
+import model
 from util import read_dict_from_json, get_bins
 from util import configGPUs, expandFilePath, configRootLogger
 import logging
@@ -273,8 +274,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model-name",
         dest="model_name",
+        choices=model.model_builders.keys(),
         default="dense_3hl",
-        help="Model architecture name, referring to one of the models in python/models.py"
+        help="Model architecture name, referring to one of the models in python/models.py",
     )
 
     #parser.add_argument('-n', '--normalize',

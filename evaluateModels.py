@@ -10,6 +10,7 @@ from model import get_model, get_callbacks
 from datahandler import DataHandler, DataToy
 from util import configGPUs, configRootLogger, expandFilePath, read_dict_from_json
 from util import get_bins, write_chi2, write_ks, write_triangular_discriminators, ks_2samp_weighted
+import model
 import plotting
 import logging
 
@@ -289,9 +290,15 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--signal', required=True, nargs='+',
                         type=str,
                         help="Signal MC npz file names")
-    parser.add_argument('-m', '--model-name', dest='model_name', type=str,
-                        default = 'dense_3hl',
-                        help="Model name")
+    parser.add_argument(
+        "-m",
+        "--model-name",
+        dest="model_name",
+        choices=model.model_builders.keys(),
+        type=str,
+        default="dense_3hl",
+        help="Model name, referring to one of the architectures in python/models.py",
+    )
     parser.add_argument('-o', '--outputdir', default='./output_models',
                         help="Output directory")
     parser.add_argument('-r', '--reweight-data', dest='reweight_data',
