@@ -11,8 +11,6 @@ parser : argparse.ArgumentParser
 
 import argparse
 
-import model
-
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
@@ -181,9 +179,13 @@ parser.add_argument(
 parser.add_argument(
     "--model-name",
     dest="model_name",
-    choices=model.model_builders.keys(),
     default="dense_3hl",
-    help="Model architecture name, referring to one of the models in python/models.py",
+    help="Model architecture name, referring to one of the models in python/models.py or --model-file",
+)
+parser.add_argument(
+    "--model-file",
+    dest="model_file",
+    help="Path to a Python module containing module architecture functions as in python/models.py",
 )
 
 # parser.add_argument('-n', '--normalize',

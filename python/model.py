@@ -2,6 +2,11 @@
 Define model architectures.
 """
 
+import importlib
+import inspect
+import os.path
+import sys
+
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
@@ -104,13 +109,59 @@ def get_model(input_shape, model_name='dense_3hl', nclass=2):
 
     return model
 
-def register_model(model_func):
+def register_file(path):
+    """
+    Import a module and register all the names in it as models.
+
+    To prevent bugs, the module should use __all__ to restrict the exported
+    namespace to only model functions, if necessary.
+
+    Parameters
+    ----------
+    path : path-like object
+        Path to a Python module containing callables with the signature
+        ``f(input_shape, nclass) -> keras.models.Model``
+
+    Returns
+    -------
+    sequence of (str, callable)
+
+    Raises
+    ------
+    FileNotFoundError
+        No file found at `path`
+    ImportError
+        Unable to import the module at `path`
+    """
+    # Import module at path (based on
+    # https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly)
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"No such file or directory: {path!r}")
+
+    module_name = inspect.getmodulename(path)
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if spec is None:
+        raise ImportError(f"Can't import models from {path!r}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+
+    # Register model architectures
+    callables = inspect.getmembers(module, predicate=callable)
+    for name, model_func in callables:
+        register_model(model_func, name)
+    return callables
+
+
+def register_model(model_func, name=None):
     """
     Decorator to save a model function to the registry of model builders.
 
     Parameters
     ----------
     model_func : callable(array-like, int) -> keras.models.Model
+    name : str, optional
+        Name of the model. If not provided, `model_func.__name__` is used.
 
     Returns
     -------
@@ -127,7 +178,9 @@ def register_model(model_func):
 
     This model will be registered as `model.model_builders["example_model"]`
     """
-    model_builders[model_func.__name__] = model_func
+    if name is None:
+        name = model_func.__name__
+    model_builders[name] = model_func
     return model_func
 
 @register_model

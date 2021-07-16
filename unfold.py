@@ -12,6 +12,7 @@ from datahandler import DataHandler
 from omnifoldwbkg import OmniFoldwBkg
 from omnifoldwbkg import OmniFoldwBkg_negW, OmniFoldwBkg_multi
 from ibu import IBU
+import model
 from util import read_dict_from_json, get_bins
 from util import configGPUs, expandFilePath, configRootLogger
 import logging
@@ -230,6 +231,9 @@ if __name__ == "__main__":
     else:
         logger.error("Cannot find file: {}".format(args.binning_config))
         sys.exit("Config Failure")
+
+    if args.model_file:
+        model.register_file(args.model_file)
 
     #with tf.device('/GPU:{}'.format(args.gpu)):
     unfold(**vars(args))
